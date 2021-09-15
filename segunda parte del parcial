@@ -1,0 +1,77 @@
+import java.io.*;
+class segunda parte del parcial{
+ 
+    private static void insertionSort(int a[], int low,
+                                     int high)
+    {
+        for (int i = low + 1; i <= high; i++) {
+            for (int j = i - 1; j >= low; j--) {
+                if (a[j] > a[j + 1]) {
+
+                    int temp = a[j];
+                    a[j] = a[j + 1];
+                    a[j + 1] = temp;
+                }
+                else
+                    break;
+            }
+        }
+    }
+ 
+    private static int partition(int arr[], int low,
+                                int high)
+    {
+        int pivot = arr[high];
+        int i = low;
+        int j = low;
+ 
+        while (i <= high) {
+            if (arr[i] > pivot)
+                i++;
+            else {
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+                i++;
+                j++;
+            }
+        }
+        return j - 1;
+    }
+ 
+    public static void hybridQuickSort(int arr[], int low,
+                                       int high)
+    {
+        while (low < high) {
+
+            if (high - low > 10) {
+                insertionSort(arr, low, high);
+                break;
+            }
+            else {
+                int pivot = partition(arr, low, high);
+ 
+                if (pivot - low < pivot - high) {
+                    hybridQuickSort(arr, low, pivot - 1);
+                    low = pivot + 1;
+                }
+                else {
+                    hybridQuickSort(arr, pivot + 1, high);
+                    high = pivot - 1;
+                }
+            }
+        }
+    }
+   
+    public static void main(String[] args)
+    {
+ 
+        int arr[]
+            = { 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000,
+                6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 100000, 1000000 };
+ 
+        hybridQuickSort(arr, 0, arr.length - 1);
+        for (int i : arr)
+            System.out.print(i + "  ");
+    }
+}
