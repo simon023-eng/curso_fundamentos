@@ -1,0 +1,99 @@
+import java.util.*;
+import java.io.*;
+public class prueba{
+
+    public static int numTypes;
+    public static int numCandies;
+    public static int[] ratios;
+    public static int sum;
+
+    public static void main(String[] args) throws Exception {
+
+        // Obtenga la primera línea.
+        BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer tok = new StringTokenizer(stdin.readLine());
+        numTypes = Integer.parseInt(tok.nextToken());
+        numCandies = Integer.parseInt(tok.nextToken());
+
+        //Lea las proporciones requeridas.
+        ratios = new int[numTypes];
+        sum = 0;
+        tok = new StringTokenizer(stdin.readLine());
+        for (int i=0; i<numTypes; i++) {
+            ratios[i] = Integer.parseInt(tok.nextToken());
+            sum += ratios[i];
+        }
+
+        // Leer en frecuencias actuales.
+        int[] freq = new int[numTypes];
+        tok = new StringTokenizer(stdin.readLine());
+        for (int i=0; i<numCandies; i++)
+            freq[Integer.parseInt(tok.nextToken())-1]++;
+
+        //Configure la cola de prioridad inicial.
+        PriorityQueue<item> pq = new PriorityQueue<item>();
+        for (int i=0; i<numTypes; i++) {
+            long needBy = ((long)sum)*(freq[i]+1)/ratios[i];
+            if ( (((long)sum)*(freq[i]+1)) %ratios[i]  != 0)
+                needBy += 1;
+            item next = new item(i, freq[i], needBy);
+            pq.offer(next);
+        }
+
+        //Ahora, simule para la suma del número de pasos.
+        int curSize = numCandies;
+        for (int i=1; i<=sum; i++) {
+
+            //Consiga el artículo "más necesitado".
+            item next = pq.poll();
+
+            // Demasiado tarde...
+            if (next.nextTime < curSize+1) {
+                curSize = (int)next.nextTime - 1;
+                break;
+            }
+
+            // Come uno de estos dulces y actualízate en consecuencia.
+            int newq = next.quantity+1;
+
+            // Calcula la próxima vez que necesitemos uno, usa mod para evitar dobles.
+            long needBy = ((long)sum)*(newq+1)/ratios[next.ID];
+            if ( (((long)sum)*(newq+1))%ratios[next.ID] != 0 )
+                needBy += 1;
+
+            item added = new item(next.ID, newq, needBy);
+            pq.offer(added);
+            curSize++;
+        }
+
+        //Resultado de salida.
+        if (curSize-numCandies >= sum)
+            System.out.println("forever");
+        else
+            System.out.println(curSize-numCandies);
+    }
+}
+
+class item implements Comparable<item> {
+
+    public int ID;
+    public int quantity;
+    public long nextTime;
+
+    public item(int index, int q, long nextT) {
+        ID = index;
+        quantity = q;
+        nextTime = nextT;
+    }
+
+    public int compareTo(item other) {
+        long diff = this.nextTime - other.nextTime;
+        if (diff < 0) return -1;
+        if (diff == 0) return 0;
+        return 1;
+    }
+
+    public String toString() {
+        return ID+": "+quantity+" needed "+nextTime;
+    }
+}
